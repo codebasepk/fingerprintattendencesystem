@@ -34,22 +34,21 @@ class ProfileView(APIView):
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
 
-    def get(self, request, format=None):
+    def get(self, request, pk=None, format=None):
+        id = pk
+        if id is not None:
+            candidates = FingerprintProfileModel.objects.get(id=id)
+            serializer = FingerprintProfileSerializer(candidates)
+            return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
         candidates = FingerprintProfileModel.objects.all()
         serializer = FingerprintProfileSerializer(candidates, many=True)
         return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
 
-    # def put(self, request, *args, **kwargs):
-    #     json_data = request.body
-    #     stream = io.BytesIO(json_data)
-    #     pythondata = JSONParser().parse(stream)
-    #     id = pythondata.get('id')
-    #     stu = FingerprintProfileModel.objects.get(id=id)
-    #     serializer = FingerprintProfileSerializer(stu, data=pythondata, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         res = {'msg': 'Data Updated !!'}
-    #         json_data = JSONRenderer().render(res)
-    #         return Response({'status': 'success', 'candidates': json_data}, status=status.HTTP_200_OK)
-    #     json_data = JSONRenderer().render(serializer.errors)
-    #     return Response({'status': 'success', 'candidates': json_data}, status=status.HTTP_200_OK)
+    def patch(self, request, pk, format=None):
+        id = pk
+        candidates = FingerprintProfileModel.objects.get(pk=id)
+        serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Partial Data Updated'})
+        return Response(serializer.errors)

@@ -18,9 +18,9 @@ class FingerprintProfileModel(models.Model):
     username = models.CharField(max_length=100)
     checkinstatus = models.CharField(max_length=100)
     currentdate = models.DateField(auto_now=False, auto_now_add=False)
-    checkintime = models.TimeField(auto_now=False, auto_now_add=False,)
+    checkintime = models.CharField(max_length=100)
     exitstatus = models.CharField(max_length=100)
-    checkouttime = models.TimeField(auto_now=False, auto_now_add=False)
+    checkouttime = models.CharField(max_length=100, blank=True, null=True, default=None)
     fpid = models.IntegerField()
 
 
