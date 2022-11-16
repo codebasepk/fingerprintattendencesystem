@@ -15,13 +15,13 @@ LEAVING_CHOICE = ((
 
 
 class FingerprintProfileModel(models.Model):
-    username = models.CharField(max_length=100, default=None)
-    checkinstatus = models.CharField(max_length=100, default=None)
-    currentdate = models.DateField(auto_now=False, auto_now_add=False, blank=False, default=None)
-    checkintime = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False, default=None)
-    exitstatus = models.CharField(max_length=100, default=None)
-    checkouttime = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False, default=None)
-    fpid = models.IntegerField(default=None)
+    username = models.CharField(max_length=100)
+    checkinstatus = models.CharField(max_length=100)
+    currentdate = models.DateField(auto_now=False, auto_now_add=False)
+    checkintime = models.TimeField(auto_now=False, auto_now_add=False,)
+    exitstatus = models.CharField(max_length=100)
+    checkouttime = models.TimeField(auto_now=False, auto_now_add=False)
+    fpid = models.IntegerField()
 
 
 class RegisterPersonModel(models.Model):
