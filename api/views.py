@@ -1,14 +1,10 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
-from .models import FingerprintProfileModel
+from .models import FingerprintProfileModel, RegisterPersonModel
 from .serializers import FingerprintProfileSerializer
 from .serializers import RegisterPersonSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-import io
+from rest_framework.filters import SearchFilter
 
 
 class RegisterView(APIView):
@@ -21,6 +17,16 @@ class RegisterView(APIView):
                 'status': 'success', 'candidate': serializer.data},
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
+
+    def get(self, request, pk=None, format=None):
+        id = pk
+        if id is not None:
+            candidates = RegisterPersonModel.objects.get(id=id)
+            serializer = RegisterPersonSerializer(candidates)
+            return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
+        candidates = RegisterPersonModel.objects.all()
+        serializer = RegisterPersonSerializer(candidates, many=True)
+        return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
 
 
 class ProfileView(APIView):
