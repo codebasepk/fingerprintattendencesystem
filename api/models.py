@@ -15,9 +15,17 @@ LEAVING_CHOICE = ((
 
 
 class FingerprintProfileModel(models.Model):
-    username = models.CharField(max_length=100)
-    dt = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False)
-    status = models.CharField(choices=STATE_CHOICE, max_length=50, blank=False)
-    picture = models.ImageField(upload_to='pImages', blank=True)
-    ldt = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False, default=False)
-    lstatus = models.CharField(choices=LEAVING_CHOICE, max_length=50, default=False)
+    username = models.CharField(max_length=100, default=None)
+    checkinstatus = models.CharField(max_length=100, default=None)
+    currentdate = models.DateField(auto_now=False, auto_now_add=False, blank=False, default=None)
+    checkintime = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False, default=None)
+    exitstatus = models.CharField(max_length=100, default=None)
+    checkouttime = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False, default=None)
+    fpid = models.IntegerField(default=None)
+
+
+class RegisterPersonModel(models.Model):
+    personName = models.CharField(max_length=100)
+    fpid = models.IntegerField(unique=True)
+    joiningdatetime = models.DateTimeField(auto_now=False, auto_now_add=False, blank=False)
+
