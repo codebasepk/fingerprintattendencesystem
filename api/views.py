@@ -2,12 +2,35 @@ from .models import FingerprintProfileModel, RegisterPersonModel
 from .serializers import FingerprintProfileSerializer
 from .serializers import RegisterPersonSerializer
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter
+from rest_framework import authentication, permissions
+
+
+class RobotList(ListAPIView):
+    queryset = FingerprintProfileModel.objects.all()
+    serializer_class = FingerprintProfileSerializer
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'fpid', 'currentdate'
+    ]
+
+
+# class ListUsers(APIView):
+#
+#     def get(self, request, format=None):
+#         """
+#         Return a list of all users.
+#         """
+#         usernames = [user.fpid for user in FingerprintProfileModel.objects.all()]
+#         currentdate = [user.currentdate for user in FingerprintProfileModel.objects.all()]
+#         return Response(currentdate)
 
 
 class RegisterView(APIView):
+
     def post(self, request, format=None):
         serializer = RegisterPersonSerializer(data=request.data)
         if serializer.is_valid():
@@ -41,9 +64,9 @@ class ProfileView(APIView):
         return Response(serializer.errors)
 
     def get(self, request, pk=None, format=None):
-        id = pk
-        if id is not None:
-            candidates = FingerprintProfileModel.objects.get(id=id)
+        fpid = pk
+        if fpid is not None:
+            candidates = FingerprintProfileModel.objects.get(fpid=fpid)
             serializer = FingerprintProfileSerializer(candidates)
             return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
         candidates = FingerprintProfileModel.objects.all()
@@ -51,10 +74,21 @@ class ProfileView(APIView):
         return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
 
     def patch(self, request, pk, format=None):
-        id = pk
-        candidates = FingerprintProfileModel.objects.get(pk=id)
+        fpid = pk
+        candidates = FingerprintProfileModel.objects.get(fpid=fpid)
         serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'msg': 'Partial Data Updated'})
+            return Response({'status': 'partially data updated', 'candidates': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors)
+
+
+    # def patch(self, request, *args, **kwargs):
+    #     fpid = kwargs.get('fpid', '0')
+    #     currentdate = kwargs.get('currentdate', '0')
+    #     candidates = FingerprintProfileModel.objects.get(fpid=fpid, currentdate=currentdate)
+    #     serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({'status': 'partially data updated', 'candidates': serializer.data}, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors)
