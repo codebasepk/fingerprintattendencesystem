@@ -1,21 +1,25 @@
+import django_filters
+from rest_framework.templatetags.rest_framework import data
+
 from .models import FingerprintProfileModel, RegisterPersonModel
 from .serializers import FingerprintProfileSerializer
 from .serializers import RegisterPersonSerializer
 from rest_framework.views import APIView
-from rest_framework import status, generics
+from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveUpdateAPIView, \
+    get_object_or_404
 from rest_framework.filters import SearchFilter
 from rest_framework import authentication, permissions
+from django_filters import rest_framework as filters
 
 
-class RobotList(ListAPIView):
-    queryset = FingerprintProfileModel.objects.all()
-    serializer_class = FingerprintProfileSerializer
-    filter_backends = [SearchFilter]
-    search_fields = [
-        'fpid', 'currentdate'
-    ]
+# class RobotList(generics.ListAPIView):
+#     queryset = FingerprintProfileModel.objects.all()
+#     serializer_class = FingerprintProfileSerializer
+#     filter_backends = (filters.DjangoFilterBackend, SearchFilter)
+#     filterset_fields = ('fpid', 'currentdate')
+#     search_fields = ('fpid', 'currentdate')
 
 
 # class ListUsers(APIView):
@@ -28,6 +32,19 @@ class RobotList(ListAPIView):
 #         currentdate = [user.currentdate for user in FingerprintProfileModel.objects.all()]
 #         return Response(currentdate)
 
+class ChangeStatus(generics.GenericAPIView):
+    serializer_class = FingerprintProfileSerializer
+
+    def put(self, request, *args, **kwargs):
+        fpid = kwargs.get('fpid', '0')
+        currentdate = kwargs.get('currentdate', '0')
+        instance = get_object_or_404(FingerprintProfileModel, fpid=fpid, currentdate=currentdate)
+        serializer = FingerprintProfileSerializer(instance, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RegisterView(APIView):
 
@@ -79,16 +96,6 @@ class ProfileView(APIView):
         serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status': 'partially data updated', 'candidates': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'status': 'partially data updated', 'candidates': serializer.data},
+                            status=status.HTTP_200_OK)
         return Response(serializer.errors)
-
-
-    # def patch(self, request, *args, **kwargs):
-    #     fpid = kwargs.get('fpid', '0')
-    #     currentdate = kwargs.get('currentdate', '0')
-    #     candidates = FingerprintProfileModel.objects.get(fpid=fpid, currentdate=currentdate)
-    #     serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response({'status': 'partially data updated', 'candidates': serializer.data}, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors)
