@@ -35,11 +35,11 @@ from django_filters import rest_framework as filters
 class ChangeStatus(generics.GenericAPIView):
     serializer_class = FingerprintProfileSerializer
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         fpid = kwargs.get('fpid', '0')
         currentdate = kwargs.get('currentdate', '0')
         instance = get_object_or_404(FingerprintProfileModel, fpid=fpid, currentdate=currentdate)
-        serializer = FingerprintProfileSerializer(instance, data=request.data)
+        serializer = FingerprintProfileSerializer(instance, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -90,12 +90,25 @@ class ProfileView(APIView):
         serializer = FingerprintProfileSerializer(candidates, many=True)
         return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
 
-    def patch(self, request, pk, format=None):
-        fpid = pk
-        candidates = FingerprintProfileModel.objects.get(fpid=fpid)
-        serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
+    # def patch(self, request, pk, format=None):
+    #     fpid = pk
+    #     candidates = FingerprintProfileModel.objects.get(fpid=fpid)
+    #     serializer = FingerprintProfileSerializer(candidates, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({'status': 'partially data updated', 'candidates': serializer.data},
+    #                         status=status.HTTP_200_OK)
+    #     return Response(serializer.errors)
+
+    def patch(self, request, *args, **kwargs):
+        fpid = kwargs.get('fpid', '0')
+        currentdate = kwargs.get('currentdate', '0')
+        instance = get_object_or_404(FingerprintProfileModel, fpid=fpid, currentdate=currentdate)
+        serializer = FingerprintProfileSerializer(instance, data=request.data)
+
         if serializer.is_valid():
             serializer.save()
-            return Response({'status': 'partially data updated', 'candidates': serializer.data},
-                            status=status.HTTP_200_OK)
-        return Response(serializer.errors)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

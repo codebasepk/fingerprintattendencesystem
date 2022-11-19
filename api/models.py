@@ -17,7 +17,7 @@ LEAVING_CHOICE = ((
 class FingerprintProfileModel(models.Model):
     username = models.CharField(max_length=100)
     checkinstatus = models.CharField(max_length=100)
-    currentdate = models.DateField(auto_now=False, auto_now_add=False)
+    currentdate = models.CharField(max_length=100, null=True, blank=True)
     checkintime = models.CharField(max_length=100)
     exitstatus = models.CharField(max_length=100)
     checkouttime = models.CharField(max_length=100, blank=True, null=True, default=None)
