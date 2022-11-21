@@ -1,4 +1,9 @@
+import io
+
 import django_filters
+from django.http import HttpResponse
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
 from rest_framework.templatetags.rest_framework import data
 
 from .models import FingerprintProfileModel, RegisterPersonModel
@@ -46,6 +51,7 @@ class ChangeStatus(generics.GenericAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class RegisterView(APIView):
 
     def post(self, request, format=None):
@@ -59,14 +65,20 @@ class RegisterView(APIView):
         return Response(serializer.errors)
 
     def get(self, request, pk=None, format=None):
-        id = pk
-        if id is not None:
-            candidates = RegisterPersonModel.objects.get(id=id)
+        fpid = pk
+        if fpid is not None:
+            candidates = RegisterPersonModel.objects.get(fpid=fpid)
             serializer = RegisterPersonSerializer(candidates)
             return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
         candidates = RegisterPersonModel.objects.all()
         serializer = RegisterPersonSerializer(candidates, many=True)
         return Response({'status': 'success', 'candidates': serializer.data}, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk=None, format=None):
+        fpid = pk
+        stu = RegisterPersonModel.objects.get(fpid=fpid)
+        stu.delete()
+        return Response({'msg': 'Data Deleted'})
 
 
 class ProfileView(APIView):
@@ -110,5 +122,3 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
